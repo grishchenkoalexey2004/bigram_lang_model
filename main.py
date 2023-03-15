@@ -6,7 +6,7 @@ test_file = "test.txt"
 
 alphabet = {}
 bigram_dict = {}
-
+alphabet_len = 0
 
 def fill_alphabet():
     with open(text_file, encoding = 'utf-8', mode = 'r') as input_file: 
@@ -15,8 +15,9 @@ def fill_alphabet():
     for word in text.split():
         if (alphabet.get(word) == None):
             alphabet.update({word:0})
-        else:
-            alphabet[word]+=1
+
+    global alphabet_len 
+    alphabet_len = len(alphabet)
     
 def form_bigram_dict():
     with open(train_file,encoding= 'utf-8', mode = 'r') as input_file:
@@ -41,14 +42,19 @@ def form_bigram_dict():
 
 
 # returns P(word|prev_word) in float format (with application of Laplas smoothing)
-def calc_prob(word,prev_word):
-    prev_word_freq = alphabet[prev_word]
+def calc_prob(word,prev_word = None):
+    prev_word_freq = alphabet[prev_word] # getting the freq of prev_word in train text
+    # prev_word may not occur in train text since it is read from test text
+
+    if (prev_word_freq == 0):
+        return 1/(alphabet_len**2) # since c(wi|wi-1) = 0, c(wi-1) = 0
+    
     if (bigram_dict[prev_word].get(word) == None):
         comb_freq = 0
     else:
         comb_freq = bigram_dict[prev_word][word]
     #todo: implement laplas smoothing
-    return comb_freq/prev_word_freq
+    return (comb_freq+1)/(prev_word_freq+alphabet_len**2)
     
 
 def calc_perplexion():
@@ -62,6 +68,7 @@ def calc_perplexion():
         word = word_array[i]
         prev_word = word_array[i-1]
         prob_mult*=1/calc_prob(word,prev_word)
+        
     
     return prob_mult**(1/len(word_array))
 
@@ -69,4 +76,6 @@ def calc_perplexion():
 
 fill_alphabet()
 form_bigram_dict()
+result = calc_perplexion()
 
+print("Перплексия текста: {}".format(result))
