@@ -1,4 +1,4 @@
-import math
+from math import ceil
 
 text_file = "text.txt"
 train_file = "train.txt"
@@ -62,20 +62,22 @@ def calc_perplexion():
         text = input_file.read()
 
     word_array = text.split()
+    warray_len = len(word_array)
     prob_mult = 1
 
     for i in range(1,len(word_array)):
         word = word_array[i]
         prev_word = word_array[i-1]
-        prob_mult*=1/calc_prob(word,prev_word)
-        
+        prob_mult*=(1/calc_prob(word,prev_word))**(1/warray_len)
     
-    return prob_mult**(1/len(word_array))
+    return prob_mult
 
-    
+
 
 fill_alphabet()
 form_bigram_dict()
 result = calc_perplexion()
 
-print("Перплексия текста: {}".format(result))
+print("Перплексия текста: {}".format(ceil(result)))
+
+
