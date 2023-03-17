@@ -1,5 +1,7 @@
 from math import ceil
 
+import matplotlib.pyplot as plt
+
 text_file = "text.txt"
 train_file = "train.txt"
 test_file = "test.txt"
@@ -80,16 +82,25 @@ form_bigram_dict()
 smooth_param = 0.01
 min_result = 1000000
 
-while (smooth_param<=1):
-    result = calc_perplexion(smooth_param)
-    if (result<min_result):
-        min_param = smooth_param
-        min_result = result
 
-    print(result)
+param_arr = []
+result_arr  = [] 
+
+
+while (smooth_param<=1):
+    param_arr.append(smooth_param)
+    result = calc_perplexion(smooth_param)
+    result_arr.append(result)
     smooth_param+=0.01
     
-print("Минимальная перплексия текста в {} условных единиц достигается при лямбда = {:0.2f}".format(int(min_result),min_param))
+
+# visualization part
+
+plt.axis([0,1,0,max(result_arr)])
+plt.title('Зависимость перплексии от параметра сглаживания')
+plt.plot(param_arr,result_arr,'ro')
+plt.show()
+
 
 
 
