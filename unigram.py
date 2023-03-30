@@ -64,11 +64,7 @@ def calc_prob(word,smooth_param,to_smooth = True):
     if (not(to_smooth)):
         return word_freq/train_corpus_len
 
-    if (word_freq == 0):
-        return (1*smooth_param)/(train_corpus_len + smooth_param*alphabet_len)
-    
-    else:
-        return (word_freq+1*smooth_param)/(train_corpus_len+alphabet_len*smooth_param)
+    return (word_freq+smooth_param)/(train_corpus_len+smooth_param*alphabet_len)
     
 
 def calc_perplexion(smooth_param):
