@@ -10,6 +10,9 @@ alphabet = {}
 bigram_dict = {}
 alphabet_len = 0
 
+bigram_stats = ["В доме", "Которая в", "Который синица", "В Джек"]
+
+
 def fill_alphabet():
     with open(text_file, encoding = 'utf-8', mode = 'r') as input_file: 
         text = input_file.read()
@@ -44,21 +47,22 @@ def form_bigram_dict():
 
 
 # returns P(word|prev_word) in float format (with application of Laplas smoothing)
-def calc_prob(word,prev_word,smooth_param):
+def calc_prob(word,prev_word,smooth_param,to_smooth = True):
     prev_word_freq = alphabet[prev_word] # getting the freq of prev_word in train text
-    # prev_word may not occur in train text since it is read from test text
 
+    # prev_word may not occur in train text since it is read from test text
     if (prev_word_freq == 0):
-        return 1/(smooth_param*alphabet_len**2) # since c(wi|wi-1) = 0, c(wi-1) = 0
-    
-    if (bigram_dict[prev_word].get(word) == None):
+        comb_freq = 0
+    elif(bigram_dict[prev_word].get(word) == None):
         comb_freq = 0
     else:
         comb_freq = bigram_dict[prev_word][word]
-    #todo: implement laplas smoothing
+
+    if (not(to_smooth)):
+        return (comb_freq)/(prev_word_freq)
+
     return (comb_freq+1*smooth_param)/(prev_word_freq+smooth_param*alphabet_len**2)
     
-
 def calc_perplexion(smooth_param):
     with open(test_file,encoding= 'utf-8', mode = 'r') as input_file:
         text = input_file.read()
@@ -78,6 +82,20 @@ def calc_perplexion(smooth_param):
 
 fill_alphabet()
 form_bigram_dict()
+
+smooth_param = 1
+zero_param = 0
+
+
+for seq in bigram_stats:
+    word = seq.split()[1]
+    prev_word = seq.split()[0]
+    print("{}".format(seq))
+    print("before smoothing: {}".format(calc_prob(word,prev_word,1,False)))
+    print("after smoothing: {}".format(calc_prob(word,prev_word,1)))
+    
+
+
 
 smooth_param = 0.01
 min_result = 1000000
@@ -99,8 +117,9 @@ while (smooth_param<=1):
 plt.axis([0,1,0,max(result_arr)])
 plt.title('Зависимость перплексии от параметра сглаживания')
 plt.plot(param_arr,result_arr,'ro')
+plt.savefig("bigram_perplexity_graph.png")
 plt.show()
-
+plt.close()
 
 
 
